@@ -49,7 +49,7 @@ function getAllCourses($class) {
 // To get class offering a particular course
 function getClass($course_id) {
     global $conn;
-    $query = "SELECT class FROM course_practicals WHERE id = '$course_id'";
+    $query = "SELECT class, course_code FROM course_practicals WHERE id = '$course_id'";
     $result = mysqli_query($conn, $query);
     $row = mysqli_fetch_assoc($result);
     return $row;
@@ -63,6 +63,8 @@ function getCourseStudents($class) {
     return $classList;
 }
 
+
+// To get the students report status dynamically
 function getStudentReportStatus($student_id){
     global $conn; 
     $query = "SELECT * FROM practical_reports WHERE student_id = '$student_id'";
@@ -76,4 +78,13 @@ function getStudentReportStatus($student_id){
         $status = "Completed";
     }
     return $status;
+}
+
+
+// To get student pratcical reports
+function getstudentReport($student_id) {
+    global $conn;
+
+    $sql = "SELECT * FROM practical_reports WHERE student_id = '$student_id'";
+    return mysqli_query($conn, $sql);
 }

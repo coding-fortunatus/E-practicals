@@ -149,7 +149,7 @@ if(!$_SESSION["loggedin"] === true){
                 <div class="container-fluid">
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">View all practical</h1>
+                        <h1 class="h3 mb-0 text-gray-800">View all practicals</h1>
                         <!-- <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                                 class="fas fa-download fa-sm text-white-50"></i>
                             Generate Report</a> -->
@@ -163,17 +163,22 @@ if(!$_SESSION["loggedin"] === true){
                                     Click on each course to view practicals reported by student
                                 </h6>
                             </div>
+                            <?php foreach ($lecturerCourses as $course) : ?>
                             <div class="card-body">
                                 <div class="row">
-                                    <?php foreach ($lecturerCourses as $course) : ?>
-                                    <div class="col-3 mb-4">
-                                        <a href="?course_id=<?php echo $course['id']; ?>" class="btn btn-warning">
-                                            <?php echo $course['course_code'] ?>
+                                    <?php
+                                        echo "<label class='form-label text-dark col-3'>".$course['class']."</label><br>";
+                                    ?>
+                                    <div class="col-3">
+                                        <a href="?course_id=<?php echo $course['id']; ?>" class="btn btn-info">
+                                            <?php
+                                            echo $course['course_code'];
+                                            ?>
                                         </a>
                                     </div>
-                                    <?php endforeach; ?>
                                 </div>
                             </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
@@ -182,7 +187,7 @@ if(!$_SESSION["loggedin"] === true){
             <!-- End of Main Content -->
 
             <!-- Footer -->
-            <footer class="sticky-footer bg-white">
+            <!-- <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
                         <span>Copyright &copy; HND II FINAL YEAR PROJECT
@@ -192,7 +197,7 @@ if(!$_SESSION["loggedin"] === true){
                         <span>Developer <a href="#" class="text-info" target="_blank">Fortunatus</a></span>
                     </div>
                 </div>
-            </footer>
+            </footer> -->
             <!-- End of Footer -->
         </div>
         <!-- End of Content Wrapper -->

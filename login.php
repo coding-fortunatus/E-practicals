@@ -102,7 +102,7 @@ if(isset($_SESSION["loggedin"]) === true) {
         <!-- Outer Row -->
         <div class="row justify-content-center">
             <div class="col-xl-10 col-lg-12 col-md-9">
-                <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card o-hidden border-0 shadow-lg py-5 my-5 mt-5">
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
                         <div class="row">
@@ -148,17 +148,17 @@ if(isset($_SESSION["loggedin"]) === true) {
         </div>
     </div>
     <!-- Footer -->
-    <footer class="sticky-footer bg-white">
-        <div class="container-fluid my-auto">
-            <div class="copyright text-center my-auto">
+    <!-- <footer class="sticky-footer bg-white  mt-5">
+        <div class="container-fluid">
+            <div class="copyright text-center">
                 <span>Copyright &copy; HND II FINAL YEAR PROJECT
-                    2023</span>
+                    </span>
             </div>
-            <div class="copyright text-center text-info my-auto">
+            <<div class="copyright text-center text-info">
                 <span>Developer <a href="#" class="text-info" target="_blank">Fortunatus</a></span>
-            </div>
-        </div>
-    </footer>
+            </div> 
+    </div>
+    </footer>-->
     <!-- End of Footer -->
 
 

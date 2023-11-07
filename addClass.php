@@ -288,7 +288,7 @@ if(!$_SESSION["loggedin"] === true){
                 </div>
             </div>
             <!-- Footer -->
-            <footer class="sticky-footer bg-white">
+            <!-- <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
                         <span>Copyright &copy; HND II FINAL YEAR PROJECT
@@ -298,7 +298,7 @@ if(!$_SESSION["loggedin"] === true){
                         <span>Developer <a href="#" class="text-info" target="_blank">Fortunatus</a></span>
                     </div>
                 </div>
-            </footer>
+            </footer> -->
             <!-- End of Footer -->
         </div>
         <!-- /.container-fluid -->

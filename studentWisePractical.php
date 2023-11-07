@@ -18,12 +18,12 @@ if(!$_SESSION["loggedin"] === true){
     $course_id = $_SESSION['course_id'];
     $row = getClass($course_id);
     $class = $row['class'];
-    $students = getCourseStudents($class);
+    $reports = getstudentReport($_SESSION['student_id']);
 
-    if (isset($_GET['student_id'])) {
-        $_SESSION['student_id'] = $_GET['student_id'];
-        header("Location: studentWisePractical.php");
-    }
+    // if (isset($_GET['student_id'])) {
+    //     $_SESSION['student_id'] = $_GET['student_id'];
+    //     header("Location: studentWisePractical.php");
+    // }
 
 }
 
@@ -39,7 +39,7 @@ if(!$_SESSION["loggedin"] === true){
     <meta name="description" content="" />
     <meta name="author" content="" />
 
-    <title>E-Practical Report system - Manage Practicals</title>
+    <title>E-Practical Report system - student Practicals</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
@@ -153,7 +153,8 @@ if(!$_SESSION["loggedin"] === true){
                 <div class="container-fluid">
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Student practical reports</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Student practical reports
+                        </h1>
                         <a href="<?php echo $url; ?>" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
                             <i class="fas fa-arrow-left fa-sm text-white-50"></i>
                             Back</a>
@@ -162,36 +163,43 @@ if(!$_SESSION["loggedin"] === true){
                     <!-- DataTables -->
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary"><?php echo $class; ?> Student class list</h6>
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <?php echo $class; ?> Student Practical Report for
+                                <?php echo $row['course_code']; ?>
+                            </h6>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th>Name</th>
-                                            <th>Matric Number</th>
-                                            <th>Practical Status</th>
-                                            <th>Session</th>
-                                            <th>Program Type</th>
-                                            <th>Action</th>
+                                            <th>Exercise number</th>
+                                            <th>Practical title</th>
+                                            <th>Aim $ Objectives</th>
+                                            <th>Procedures</th>
+                                            <th>Experience gain</th>
+                                            <th>Problem encountered</th>
+                                            <th>Date time</th>
+                                            <th>Attachment</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($students as $data) :?>
+                                        <?php 
+                                        if (mysqli_num_rows($reports) > 0) {
+                                            $p_reports = mysqli_fetch_assoc($reports);
+
+                                            foreach ($p_reports as $report) :?>
                                         <tr>
-                                            <td><?php echo $data['fullname'] ?></td>
-                                            <td><?php echo $data['matric_number'] ?></td>
-                                            <td class="text-center"><?php echo getStudentReportStatus($data['id']) ?>
-                                            </td>
-                                            <td><?php echo $data['session'] ?></td>
-                                            <td class="text-center"><?php echo $data['program_type'] ?></td>
-                                            <td class="text-center"><a
-                                                    href="<?php echo '?student_id='.$data['id']; ?>"><i
-                                                        class="fa fa-eye"></i></a>
-                                            </td>
+                                            <td><?php echo $report['exercise_number'] ?></td>
+                                            <td><?php echo $report['practical_title'] ?></td>
+                                            <td><?php echo $report['aim_objectives'] ?></td>
+                                            <td><?php echo $report['procedures'] ?></td>
+                                            <td><?php echo $report['experience_gain'] ?></td>
+                                            <td><?php echo $report['problem_encountered'] ?></td>
+                                            <td><?php echo $report['date_time'] ?></td>
+                                            <td><?php echo $report['attachment'] ?></td>
                                         </tr>
-                                        <?php endforeach; ?>
+                                        <?php endforeach; }?>
                                     </tbody>
                                 </table>
                             </div>
