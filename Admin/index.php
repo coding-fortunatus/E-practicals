@@ -397,19 +397,6 @@ if(!$_SESSION["loggedin"] === true){
                 <!-- /.container-fluid -->
             </div>
             <!-- End of Main Content -->
-
-            <!-- Footer -->
-            <!-- <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; HND II FINAL YEAR PROJECT
-                            2023</span>
-                    </div>
-                    <div class="copyright text-center text-info my-auto">
-                        <span>Developer <a href="#" class="text-info" target="_blank">Fortunatus</a></span>
-                    </div>
-                </div>
-            </footer> -->
             <!-- End of Footer -->
         </div>
         <!-- End of Content Wrapper -->

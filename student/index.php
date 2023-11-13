@@ -2,20 +2,18 @@
 require_once "./includes/dbh.php";
 require_once './includes/functions.php';
 session_start();
-if ($_SESSION['user_role'] == "Admin") {
-    error_reporting(0);
-}
-
-
 // Check if the user is already logged in
 if(!$_SESSION["loggedin"] === true){
     header("Location: login.php");
     exit;
 } else {
-    $name = $_SESSION['username'];
-    $lecturer_data = getLecturerInfo($name);
-    $lecturer_name = $lecturer_data['fullname'];
-    $lecturer_id = $lecturer_data['id'];
+    $matric_number = $_SESSION['username'];
+    $student_data = getStudentInfo($matric_number);
+    $student_name = $student_data['fullname'];
+    $student_id = $student_data['id'];
+    $student_class = $student_data['class'];
+    // Student practicals
+    $class_data = getAllCourses($student_class);
 }
 
 ?>
@@ -46,7 +44,6 @@ if(!$_SESSION["loggedin"] === true){
     <!-- Page Wrapper -->
     <div id="wrapper">
         <!-- Sidebar -->
-        <?php if ($_SESSION['user_role'] == "Admin") { ?>
 
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
             <!-- Sidebar - Brand -->
@@ -55,7 +52,7 @@ if(!$_SESSION["loggedin"] === true){
                     <i class="fas fa-cogs"></i>
                 </div>
                 <div class="sidebar-brand-text mx-3">
-                    Manager
+                    Student
                 </div>
             </a>
 
@@ -66,62 +63,25 @@ if(!$_SESSION["loggedin"] === true){
             <li class="nav-item active">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
+                    <span>Practicals</span></a>
             </li>
 
             <!-- Divider -->
             <hr class="sidebar-divider" />
-
-            <!-- Heading -->
-            <div class="sidebar-heading">Manage Class</div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-                    aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-fw fa-user-cog"></i>
-                    <span>Classes</span>
-                </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Actions</h6>
-                        <a class="collapse-item" href="addClass.php">Add Class</a>
-                        <a class="collapse-item" href="viewClass.php">View Class</a>
-                    </div>
-                </div>
-            </li>
             <!-- Divider -->
             <hr class="sidebar-divider" />
-            <div class="sidebar-heading">Manage Lecturer</div>
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
-                    aria-expanded="true" aria-controls="collapseUtilities">
-                    <i class="fas fa-fw fa-users"></i>
-                    <span>Lecturers</span>
-                </a>
-                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
-                    data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Actions</h6>
-                        <a class="collapse-item" href="addLecturer.php">Add Lecturer</a>
-                        <a class="collapse-item" href="viewLecturer.php">View Lecturers</a>
-                    </div>
-                </div>
-            </li>
-            <!-- Divider -->
-            <hr class="sidebar-divider" />
-            <div class="sidebar-heading">Manage Users</div>
+            <div class="sidebar-heading">Manage Reports</div>
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsedThree"
                     aria-expanded="true" aria-controls="collapsedThree">
                     <i class="fas fa-fw fa-users"></i>
-                    <span>Users</span>
+                    <span>Reports</span>
                 </a>
                 <div id="collapsedThree" class="collapse" aria-labelledby="headingUtilities"
                     data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Actions</h6>
-                        <a class="collapse-item" href="addUser.php">Add Users</a>
+                        <a class="collapse-item" href="addUser.php">Manage Practicals</a>
                         <!-- <a class="collapse-item" href="viewUser.php">View Users></a> -->
                     </div>
                 </div>
@@ -134,59 +94,6 @@ if(!$_SESSION["loggedin"] === true){
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
         </ul>
-        <!-- End of Sidebar -->
-        <?php } else { ?>
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-            <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
-                <div class="sidebar-brand-icon">
-                    <i class="fas fa-cogs"></i>
-                </div>
-                <div class="sidebar-brand-text mx-3">
-                    Lecturer
-                </div>
-            </a>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider my-0" />
-
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
-                <a class="nav-link" href="index.php">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider" />
-
-            <!-- Heading -->
-            <div class="sidebar-heading">Manage Practicals</div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-                    aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-fw fa-user-cog"></i>
-                    <span>Practicals</span>
-                </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Actions</h6>
-                        <a class="collapse-item" href="addPracticals.php">Add practical</a>
-                        <a class="collapse-item" href="viewPracticals.php">View practicals</a>
-                    </div>
-                </div>
-            </li>
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block" />
-
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
-        </ul>
-        <?php } ?>
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
             <!-- Main Content -->
@@ -208,13 +115,7 @@ if(!$_SESSION["loggedin"] === true){
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">
-                                    <?php 
-                                    if ($_SESSION['user_role'] == "Admin") {
-                                        echo "Admin";
-                                    } else {
-                                        echo $lecturer_name; 
-                                    }
-                                    ?>
+                                    <?php echo $student_name; ?>
                                 </span>
                                 <img class="img-profile rounded-circle" src="img/undraw_profile.svg" />
                             </a>
@@ -241,176 +142,42 @@ if(!$_SESSION["loggedin"] === true){
                 <div class="container-fluid">
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Course Wise Practicals</h1>
                         <!-- <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                                 class="fas fa-download fa-sm text-white-50"></i>
                             Generate Report</a> -->
                     </div>
 
                     <!-- Content Row -->
-                    <div class="row">
-                        <!-- Classes Card Example -->
-                        <div class="col-xl-4 col-md-6 mb-4">
-                            <div class="card border-left-primary shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="card-title font-weight-bold text-uppercase text-primary">Classes
-                                        <span class="col-auto">
-                                            <i class="fas fa-user-cog fa-2x text-gray-300"></i>
-                                        </span>
-                                    </div>
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                ND I
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                <?php echo getClassTotal("ND1"); ?>
-                                            </div>
-                                        </div>
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                ND II
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                <?php echo getClassTotal("ND2"); ?>
-                                            </div>
-                                        </div>
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                HND I
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                <?php echo getClassTotal("HND1"); ?>
-                                            </div>
-                                        </div>
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                HND II
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                <?php echo getClassTotal("HND2"); ?>
-                                            </div>
-                                        </div>
-
+                    <div class="row mb-5">
+                        <div class="card mb-4 col-12">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    Click on each course to start reporting practicals
+                                </h6>
+                            </div>
+                            <?php foreach ($class_data as $course) : ?>
+                            <div class="card-body">
+                                <div class="row">
+                                    <?php
+                                        echo "<label class='form-label text-dark col-3'>".$course['class']."</label><br>";
+                                    ?>
+                                    <div class="col-3">
+                                        <a href="?course_id=<?php echo $course['id']; ?>" class="btn btn-info">
+                                            <?php
+                                            echo $course['course_code'];
+                                            ?>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Courses Card Example -->
-                        <div class="col-xl-4 col-md-6 mb-4">
-                            <div class="card border-left-success shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="card-title font-weight-bold text-success text-uppercase">Courses
-                                        <span class="col-auto">
-                                            <i class="fas fa-book fa-2x text-gray-300"></i>
-                                        </span>
-                                    </div>
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                ND I
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                <?php 
-                                                if ($_SESSION['user_role'] == "Admin") {
-                                                    echo getAllCourses("ND1");
-                                                } else {
-                                                    echo getClassCourses("ND1", $lecturer_id);
-                                                }
-                                                ?>
-                                            </div>
-                                        </div>
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                ND II
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                <?php 
-                                                if ($_SESSION['user_role'] == "Admin") {
-                                                    echo getAllCourses("ND2");
-                                                } else {
-                                                    echo getClassCourses("ND2", $lecturer_id);
-                                                }
-                                                ?>
-                                            </div>
-                                        </div>
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                HND I
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                <?php 
-                                                if ($_SESSION['user_role'] == "Admin") {
-                                                    echo getAllCourses("HND1");
-                                                } else {
-                                                    echo getClassCourses("HND1", $lecturer_id);
-                                                } 
-                                                ?>
-                                            </div>
-                                        </div>
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                HND II
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                <?php 
-                                                if ($_SESSION['user_role'] == "Admin") {
-                                                    echo getAllCourses("HND2");
-                                                } else {
-                                                    echo getClassCourses("HND2", $lecturer_id);
-                                                }
-                                                ?>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Students Card Example -->
-                        <div class="col-xl-4 col-md-6 mb-4">
-                            <div class="card border-left-warning shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="card-title font-weight-bold text-warning text-uppercase"> Students
-                                        <span class="col-auto">
-                                            <i class="fas fa-users fa-2x text-gray-300"></i>
-                                        </span>
-                                    </div>
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                                Total
-                                            </div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                                <?php echo getAllStudents(); ?>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
                 <!-- /.container-fluid -->
             </div>
             <!-- End of Main Content -->
-
-            <!-- Footer -->
-            <!-- <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; HND II FINAL YEAR PROJECT
-                            2023</span>
-                    </div>
-                    <div class="copyright text-center text-info my-auto">
-                        <span>Developer <a href="#" class="text-info" target="_blank">Fortunatus</a></span>
-                    </div>
-                </div>
-            </footer> -->
-            <!-- End of Footer -->
         </div>
         <!-- End of Content Wrapper -->
     </div>

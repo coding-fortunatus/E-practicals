@@ -1,11 +1,21 @@
 <?php
 
+// To get each lecturer info
 function getLecturerInfo($name) {
     global $conn;
     $getLecturerInfo = "SELECT * FROM lecturers WHERE fullname LIKE '%$name%'";
     $result = mysqli_query($conn, $getLecturerInfo);
     $lecturer_data = mysqli_fetch_assoc($result);
     return $lecturer_data;
+}
+
+// Get a student information
+function getStudentInfo($mat_num) {
+    global $conn;
+    $getStdntInfo = "SELECT * FROM classes WHERE matric_number LIKE '%$mat_num%'";
+    $result = mysqli_query($conn, $getStdntInfo);
+    $student_data = mysqli_fetch_assoc($result);
+    return $student_data;
 }
 
 function getClassTotal($class) {
@@ -38,12 +48,12 @@ function getAllStudents() {
     return $studentTotal;
 }
 
-
+// To get class course practicals
 function getAllCourses($class) {
     global $conn;
     $query = "SELECT * FROM course_practicals WHERE class = '$class'";
-    $allClassCourses = mysqli_num_rows(mysqli_query($conn, $query));
-    return $allClassCourses;
+    $course_data = mysqli_query($conn, $query);
+    return $course_data;
 }
 
 // To get class offering a particular course
