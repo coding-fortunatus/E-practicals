@@ -1,43 +1,24 @@
 <?php
 require_once "./includes/dbh.php";
-require_once "./includes/functions.php";
+require_once './includes/functions.php';
 session_start();
-$course_id = "";
 $url = htmlspecialchars($_SERVER['HTTP_REFERER']);
+$student_id = $course_id = $execise_num = $p_title = $aim_objectives = $procedures = $exp_gain =  $problem = $date_time = $attachment = $message = "";
+
 // Check if the user is already logged in
 if(!$_SESSION["loggedin"] === true){
     header("Location: login.php");
     exit;
 } else {
-    // Get lecturer information
-    $name = $_SESSION['username'];
-    $lecturer_data = getLecturerInfo($name);
-    $lecturer_name = $lecturer_data['fullname'];
-    $lecturer_id = $lecturer_data['id'];
-    // Get student and course information
-    $course_id = $_SESSION['course_id'];
-    $row = getClass($course_id);
-    $class = $row['class'];
-    $reports = getstudentReport($_SESSION['student_id']);
-
-    $path = "./reports/";
-    if (isset($_GET['attachment'])) {
-        $file = $_GET['attachment'];
+    $matric_number = $_SESSION['username'];
+    $student_data = getStudentInfo($matric_number);
+    $student_name = $student_data['fullname'];
+    $student_id = $student_data['id'];
+    $student_class = $student_data['class'];
+    // Student practicals
+    $reports = getstudentReport($student_id);
+    $class_data = getAllCourses($student_class);
     
-        // Generate the full path to the PDF file
-        $fullPath = $path.$file;
-    
-        // Check if the file exists
-        if (file_exists($fullPath)) {
-            // Set appropriate headers for PDF download
-            header('Content-Type: application/msword');
-            header('Content-Disposition: attachment; filename="' . $file . '"');
-            header('Content-Length: ' . filesize($fullPath));
-            // Output the PDF file content
-            readfile($fullPath);
-        } 
-    }
-
 }
 
 ?>
@@ -52,7 +33,7 @@ if(!$_SESSION["loggedin"] === true){
     <meta name="description" content="" />
     <meta name="author" content="" />
 
-    <title>E-Practical Report system - student Practicals</title>
+    <title>E-Practical Report system - Manage Reports</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
@@ -62,13 +43,13 @@ if(!$_SESSION["loggedin"] === true){
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet" />
-    <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 </head>
 
 <body id="page-top">
     <!-- Page Wrapper -->
     <div id="wrapper">
         <!-- Sidebar -->
+
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
@@ -76,7 +57,7 @@ if(!$_SESSION["loggedin"] === true){
                     <i class="fas fa-cogs"></i>
                 </div>
                 <div class="sidebar-brand-text mx-3">
-                    Lecturer
+                    Student
                 </div>
             </a>
 
@@ -84,30 +65,29 @@ if(!$_SESSION["loggedin"] === true){
             <hr class="sidebar-divider my-0" />
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item">
+            <li class="nav-item active">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
+                    <span>Practicals</span></a>
             </li>
 
             <!-- Divider -->
             <hr class="sidebar-divider" />
-
-            <!-- Heading -->
-            <div class="sidebar-heading">Manage Practicals</div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item active">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-                    aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-fw fa-user-cog"></i>
-                    <span>Practicals</span>
+            <!-- Divider -->
+            <hr class="sidebar-divider" />
+            <div class="sidebar-heading">Manage Reports</div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsedThree"
+                    aria-expanded="true" aria-controls="collapsedThree">
+                    <i class="fas fa-fw fa-users"></i>
+                    <span>Reports</span>
                 </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapsedThree" class="collapse" aria-labelledby="headingUtilities"
+                    data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Actions</h6>
-                        <a class="collapse-item" href="addPracticals.php">Add practical</a>
-                        <a class="collapse-item" href="viewPracticals.php">View practicals</a>
+                        <a class="collapse-item" href="manageReports.php">Manage Practicals</a>
+                        <!-- <a class="collapse-item" href="viewUser.php">View Users></a> -->
                     </div>
                 </div>
             </li>
@@ -139,8 +119,9 @@ if(!$_SESSION["loggedin"] === true){
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span
-                                    class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $lecturer_name; ?></span>
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    <?php echo $student_name; ?>
+                                </span>
                                 <img class="img-profile rounded-circle" src="img/undraw_profile.svg" />
                             </a>
                             <!-- Dropdown - User Information -->
@@ -165,64 +146,61 @@ if(!$_SESSION["loggedin"] === true){
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
                     <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Student practical reports
-                        </h1>
+                    <div class="d-sm-flex align-items-center justify-content-between mb-2">
+                        <h1 class="h3 mb-0 text-gray-800">Manage Report Area</h1>
                         <a href="<?php echo $url; ?>" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
                             <i class="fas fa-arrow-left fa-sm text-white-50"></i>
                             Back</a>
                     </div>
 
-                    <!-- DataTables -->
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">
-                                <?php echo $class; ?> Student Practical Report for
-                                <?php echo $row['course_code']; ?>
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>Exercise number</th>
-                                            <th>Practical title</th>
-                                            <th>Aim $ Objectives</th>
-                                            <th>Procedures</th>
-                                            <th>Experience gain</th>
-                                            <th>Problem encountered</th>
-                                            <th>Date time</th>
-                                            <th>Attachment</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php 
+                    <!-- Content Row -->
+                    <div class="row mb-5">
+                        <div class="card mb-2 col-12 px-0">
+                            <div class="">
+                                <div class="table-responsive">
+                                    <table class="table" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Course Code</th>
+                                                <th>Exercise number</th>
+                                                <th>Practical title</th>
+                                                <th style="width: 80px;">Aim & Objectives</th>
+                                                <th>Procedures</th>
+                                                <th>Experience gain</th>
+                                                <th>Problem encountered</th>
+                                                <th>Date time</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php 
                                         if (mysqli_num_rows($reports) > 0) {
                                             foreach ($reports as $report) :?>
-                                        <tr>
-                                            <td><?php echo $report['exercise_number'] ?></td>
-                                            <td><?php echo $report['practical_title'] ?></td>
-                                            <td><?php echo $report['aim_objectives'] ?></td>
-                                            <td><?php echo $report['procedures'] ?></td>
-                                            <td><?php echo $report['experience_gain'] ?></td>
-                                            <td><?php echo $report['problem_encountered'] ?></td>
-                                            <td><?php echo $report['date_time'] ?></td>
-                                            <td><?php echo "<a class='btn btn-info' target='attacment' href='?attachment=".$report['attachment']."'>Exercise ".$report['exercise_number']."</a>"; 
-                                            ?></td>
-                                        </tr>
-                                        <?php endforeach; }?>
-                                    </tbody>
-                                </table>
+                                            <tr>
+                                                <td><?php echo $_SESSION['course_code'] ?></td>
+                                                <td><?php echo $report['exercise_number'] ?></td>
+                                                <td><?php echo $report['practical_title'] ?></td>
+                                                <td><?php echo $report['aim_objectives'] ?></td>
+                                                <td><?php echo $report['procedures'] ?></td>
+                                                <td><?php echo $report['experience_gain'] ?></td>
+                                                <td><?php echo $report['problem_encountered'] ?></td>
+                                                <td><?php echo $report['date_time'] ?></td>
+                                            </tr>
+                                            <?php endforeach; }?>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- /.container-fluid -->
             </div>
-            <!-- End of Main Content -->
         </div>
-        <!-- End of Content Wrapper -->
+    </div>
+    <!-- /.container-fluid -->
+    </div>
+    <!-- End of Main Content -->
+    </div>
+    <!-- End of Content Wrapper -->
     </div>
     <!-- End of Page Wrapper -->
 
@@ -270,9 +248,6 @@ if(!$_SESSION["loggedin"] === true){
 
     <!-- Page level plugins -->
     <!-- <script src="vendor/chart.js/Chart.min.js"></script> -->
-    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
-    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
-    <script src="js/demo/datatables-demo.js"></script>
 
     <!-- Page level custom scripts -->
     <!-- <script src="js/demo/chart-area-demo.js"></script>

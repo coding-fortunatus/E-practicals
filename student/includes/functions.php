@@ -98,3 +98,22 @@ function getstudentReport($student_id) {
     $sql = "SELECT * FROM practical_reports WHERE student_id = '$student_id'";
     return mysqli_query($conn, $sql);
 }
+
+// To upload student reports
+function uploadReports($student_id, $course_id, $execise_num, $p_title, $aim_objectives, $procedures, $exp_gain, $problem, $date_time, $attachment){
+    
+    global $conn;
+    $check = "SELECT * FROM practical_reports WHERE exercise_number = '$execise_num' AND student_id = '$student_id' AND course_id = '$course_id'";
+    $result = mysqli_query($conn, $check);
+    if (mysqli_num_rows($result) > 0) {
+        $message =  "<span class='text-warning'>Report already submitted</span>";
+    } else {
+        $insert = "INSERT INTO practical_reports(student_id, course_id, exercise_number, practical_title, aim_objectives, procedures, experience_gain, problem_encountered, date_time, attachment)VALUES($student_id, $course_id, $execise_num, '$p_title', '$aim_objectives', '$procedures', '$exp_gain', '$problem', '$date_time', '$attachment')";
+        if (mysqli_query($conn, $insert)) {
+            $message = "<span class='text-success'>Report successfully submitted</span>";
+        } else {
+            $message = "<span class='text-danger'>Oops, an error occured</span>";
+        }
+    }
+    return $message;
+}

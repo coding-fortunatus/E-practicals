@@ -174,22 +174,6 @@ if(!$_SESSION["loggedin"] === true){
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">View Class</h1>
-
-                        <!-- <form action="" class="row row-cols-lg-auto g-3 align-items-center" method="POST">
-                            <div class="form-select col-auto">
-                                <select name="selected_class" class="form-select form-control">
-                                    <option selected>Select class</option>
-                                    <option value="nd1">ND I</option>
-                                    <option value="nd2">ND II</option>
-                                    <option value="hnd1">HND I</option>
-                                    <option value="hnd2">HND II</option>
-                                </select>
-                            </div>
-                            <div class="col-auto">
-                                <input type="submit" value="Show class" name="class_to_show"
-                                    class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                            </div>
-                        </form> -->
                     </div>
                     <!-- DataTables -->
                     <div class="card shadow mb-4">
@@ -228,18 +212,6 @@ if(!$_SESSION["loggedin"] === true){
                         </div>
                     </div>
                 </div>
-                <!-- Footer -->
-                <!-- <footer class="sticky-footer bg-white">
-                    <div class="container my-auto">
-                        <div class="copyright text-center my-auto">
-                            <span>Copyright &copy; HND II FINAL YEAR PROJECT
-                                2023</span>
-                        </div>
-                        <div class="copyright text-center text-info my-auto">
-                            <span>Developer <a href="#" class="text-info" target="_blank">Fortunatus</a></span>
-                        </div>
-                    </div>
-                </footer> -->
                 <!-- End of Footer -->
             </div>
             <!-- /.container-fluid -->

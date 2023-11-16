@@ -2,6 +2,9 @@
 require_once "./includes/dbh.php";
 require_once './includes/functions.php';
 session_start();
+$url = htmlspecialchars($_SERVER['HTTP_REFERER']);
+$student_id = $course_id = $execise_num = $p_title = $aim_objectives = $procedures = $exp_gain =  $problem = $date_time = $attachment = $message = "";
+
 // Check if the user is already logged in
 if(!$_SESSION["loggedin"] === true){
     header("Location: login.php");
@@ -15,30 +18,29 @@ if(!$_SESSION["loggedin"] === true){
     // Student practicals
     $class_data = getAllCourses($student_class);
 
-    // Specify the path to the directory where PDF files are stored
-    $path = '../Admin/manuals/';
-    // Check for manual download request
-    if (isset($_GET['manual'])) {
-        $file = $_GET['manual'];
-    
-        // Generate the full path to the PDF file
-        $fullPath = $path.$file;
-    
-        // Check if the file exists
-        if (file_exists($fullPath)) {
-            // Set appropriate headers for PDF download
-            header('Content-Type: application/pdf');
-            header('Content-Disposition: attachment; filename="' . $file . '"');
-            header('Content-Length: ' . filesize($fullPath));
-            // Output the PDF file content
-            readfile($fullPath);
-        } 
-    }
+    if (isset($_SERVER['REQUEST_METHOD']) == "POST" && isset($_POST['submit'])) {
+        $course_id = $_SESSION['course_id'];
+        $execise_num = trim($_POST['exercise_number']); 
+        $p_title = trim($_POST['title']);
+        $aim_objectives = "AIM: ".trim($_POST['aim'])."OBJECTIVES: ".trim($_POST['objectives']);
+        $procedures = trim($_POST['procedures']);
+        $exp_gain = trim($_POST['experience']); 
+        $problem = trim($_POST['problems']);
+        $date_time = trim($_POST['p_date'])." (".trim($_POST['p_time']).")";
 
-    // Check if the report button is pressed and redirect to report page
-    if (isset($_GET['course_id'])) {
-        $_SESSION['course_id'] = $_GET['course_id'];
-        header("Location: practicalReports.php");
+        if (!empty($_FILES['attachment']['name'])) {
+            
+            $attachment = $_FILES['attachment']['name'];
+            $file_tmp = $_FILES['attachment']['tmp_name'];
+            if (move_uploaded_file($file_tmp, "../Admin/reports/".$attachment)) {
+               // Upload the practical reports
+                $message = uploadReports($student_id, $course_id, $execise_num, $p_title, $aim_objectives, $procedures, $exp_gain, $problem, $date_time, $attachment);
+            } else {
+                $message = "<span class='text-warning'>Error uploading attachments</span>";
+            }
+        } else {
+            $message = "<span class='text-warning'>Attachment cannot be empty</span>";
+        }
     }
     
 }
@@ -55,7 +57,7 @@ if(!$_SESSION["loggedin"] === true){
     <meta name="description" content="" />
     <meta name="author" content="" />
 
-    <title>E-Practical Report system - Index</title>
+    <title>E-Practical Report system - Practical Reports</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
@@ -108,7 +110,7 @@ if(!$_SESSION["loggedin"] === true){
                     data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Actions</h6>
-                        <a class="collapse-item" href="manageReports.php">Submitted Reports</a>
+                        <a class="collapse-item" href="manageReports.php">Manage Practicals</a>
                         <!-- <a class="collapse-item" href="viewUser.php">View Users></a> -->
                     </div>
                 </div>
@@ -168,59 +170,101 @@ if(!$_SESSION["loggedin"] === true){
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
                     <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Course Wise Practicals</h1>
-                        <!-- <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                                class="fas fa-download fa-sm text-white-50"></i>
-                            Generate Report</a> -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-2">
+                        <h1 class="h3 mb-0 text-gray-800">Practical Report Area</h1>
+                        <a href="<?php echo $url; ?>" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                            <i class="fas fa-arrow-left fa-sm text-white-50"></i>
+                            Back</a>
                     </div>
+                    <?php echo $message; ?>
 
                     <!-- Content Row -->
                     <div class="row mb-5">
-                        <div class="card mb-4 col-md-12 px-0">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">
-                                    Click on each course to start reporting
+                        <div class="card mb-2 col-12 px-0">
+                            <div class="card-header py-2">
+                                <h6 class="font-weight-bold text-primary">
+                                    Adhere to the practical rules & regulations
                                 </h6>
                             </div>
-                            <div class="table-responsive">
-                                <table class="table" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>Class / Level</th>
-                                            <th>Course Code</th>
-                                            <th>Practical Number</th>
-                                            <th>Practical Manuals</th>
-                                            <th>Report Link</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($class_data as $course) : ?>
-                                        <?php $_SESSION['course_code'] = $course['course_code']?>
-                                        <tr>
-                                            <td><?php echo $course['class'] ?></td>
-                                            <td><?php echo $course['course_code'] ?></td>
-                                            <td><?php echo $course['practical_number'] ?></td>
-                                            <td>
-                                                <a href='?manual=<?php echo $course['practical_manual']?>'
-                                                    class='text-white btn btn-success'><i class='fa fa-download'></i>
-                                                    Manual
-                                                </a>
-                                            </td>
-                                            <td><a href="?course_id=<?php echo $course['id']; ?>" class="btn btn-info">
-                                                    Report
-                                                </a></td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
+                            <div class="card-body">
+                                <form class="form mt-2" method="POST"
+                                    action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) ?>"
+                                    enctype="multipart/form-data">
+                                    <div class="row">
+                                        <div class="form-group col-md-6">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="pdate" class="form-control-text">Practical Date</label>
+                                                    <input class="form-control" name="p_date" type="date" id="pdate"
+                                                        required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="ptime" class="form-control-text">Practical Time</label>
+                                                    <input class="form-control" name="p_time" type="time" id="ptime"
+                                                        required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="exec" class="form-control-text">Exercise Number</label>
+                                            <input class="form-control" name="exercise_number" type="number" id="exec"
+                                                required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="title" class="form-control-text">Exercise Title</label>
+                                            <input class="form-control" name="title" type="text" id="title" require>
+                                        </div>
+                                        <div class="col-md-6"></div>
+                                        <div class="form-group col-md-6">
+                                            <div class="mb-2">
+                                                <label for="aim" class="form-control-text">Aim of Exercise</label>
+                                                <input class="form-control" name="aim" type="text" id="aim" required>
+                                            </div>
+                                            <div class="">
+                                                <label for="objective" class="form-control-text">Objectives of
+                                                    Exercise</label>
+                                                <textarea name="objectives" class="form-control" id="objective"
+                                                    cols="10" rows="5" required>
+                                                </textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="procedures" class="form-control-text">Procedures</label>
+                                            <textarea name="procedures" class="form-control" id="procedures" cols="10"
+                                                rows="8" required>
+                                            </textarea>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="experience" class="form-control-text">Experience Gain</label>
+                                            <textarea name="experience" class="form-control" id="experience" cols="10"
+                                                rows="5" required>
+                                            </textarea>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="problems" class="form-control-text">Problems
+                                                Encountered</label>
+                                            <textarea name="problems" class="form-control" id="problems" cols="10"
+                                                rows="5" required>
+                                            </textarea>
+                                        </div>practical_report
+                                        <div class="form-group col-md-6 mb-3">
+                                            <label for="atata" class="form-control-text">Upload Attachment</label>
+                                            <input type="file" class="form-control" name="attachment" id="atata">
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <input type="submit" value="Submit" name="submit"
+                                                class="btn btn-primary col-12">
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- /.container-fluid -->
+    </div>
+    <!-- /.container-fluid -->
     </div>
     <!-- End of Main Content -->
     </div>
